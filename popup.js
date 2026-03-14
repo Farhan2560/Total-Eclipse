@@ -22,34 +22,13 @@ const blueLightValue = document.getElementById('blueLightValue');
 function getSettings() {
   return {
     darkMode: darkModeToggle.checked,
-    autoEnable: autoEnableToggle.checked, // <-- Read new toggle
+    // autoEnable: autoEnableToggle.checked, // <-- Read new toggle
     brightness: parseInt(brightnessSlider.value, 10),
     contrast: parseInt(contrastSlider.value, 10),
     grayscale: parseInt(grayscaleSlider.value, 10),
     blueLight: parseInt(blueLightSlider.value, 10),
   };
 }
-
-function applySettingsToUI(settings) {
-  darkModeToggle.checked = settings.darkMode;
-  // autoEnableToggle.checked = settings.autoEnable; // <-- Update new toggle
-  brightnessSlider.value = settings.brightness;
-  contrastSlider.value = settings.contrast;
-  grayscaleSlider.value = settings.grayscale;
-  blueLightSlider.value = settings.blueLight;
-
-  brightnessValue.textContent = settings.brightness + '%';
-  contrastValue.textContent = settings.contrast + '%';
-  grayscaleValue.textContent = settings.grayscale + '%';
-  blueLightValue.textContent = settings.blueLight + '%';
-}
-
-// ... keep all your existing sendToActiveTab and onSettingsChange code down here ...
-
-
-// autoEnableToggle.addEventListener('change', onSettingsChange);
-
-
 
 function applySettingsToUI(settings) {
   darkModeToggle.checked = settings.darkMode;
@@ -115,4 +94,34 @@ resetButton.addEventListener('click', function () {
   applySettingsToUI(DEFAULTS);
   // 2. Save the defaults to storage and instantly update the active PDF
   onSettingsChange();
+});
+
+
+// Listen for changes made in the background (like keyboard shortcuts)
+chrome.storage.onChanged.addListener(function (changes, namespace) {
+  if (namespace === 'local' && changes.darkMode) {
+    // Update the toggle UI to match the new background state
+    darkModeToggle.checked = changes.darkMode.newValue;
+  }
+
+  // --- Check for Local File Access ---
+chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+  const activeTab = tabs[0];
+  
+  if (activeTab.url.startsWith('file:///')) {
+    chrome.extension.isAllowedFileSchemeAccess((isAllowed) => {
+      if (!isAllowed) {
+        // Show the warning and hide the normal controls
+        document.getElementById('fileWarning').style.display = 'block';
+        document.querySelector('.controls').style.opacity = '0.3';
+        document.querySelector('.controls').style.pointerEvents = 'none';
+      }
+    });
+  }
+});
+
+// Help the user find the settings page
+document.getElementById('openSettingsBtn').addEventListener('click', () => {
+  chrome.tabs.create({ url: `chrome://extensions/?id=${chrome.runtime.id}` });
+});
 });

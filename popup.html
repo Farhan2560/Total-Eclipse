@@ -8,9 +8,19 @@
 </head>
 <body>
   <div class="popup-container">
+    <div id="fileWarning" class="file-warning-box" style="display: none;">
+      <h4><strong>⚠️ PDF Access Required</strong></h4>
+      <p>Please enable <b>'Allow access to file URLs'</b> in the extension settings and refresh the page to use filters on local files."</p>
+      <button id="openSettingsBtn">Go to settings</button>
+    </div>
     <header class="popup-header">
       <h1>Total Eclipse</h1>
     </header>
+
+    <div id="fileWarning" class="warning-banner">
+      <strong>Local File Detected!</strong><br>
+      To use filters on this file, right-click the extension icon, select "Manage Extension", and turn on <em>"Allow access to file URLs"</em>.
+    </div>
 
     <div class="controls">
 
