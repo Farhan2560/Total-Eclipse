@@ -1,5 +1,6 @@
 const DEFAULTS = {
   darkMode: false,
+  autoEnable: false, // <-- New default added
   brightness: 100,
   contrast: 100,
   grayscale: 0,
@@ -7,10 +8,12 @@ const DEFAULTS = {
 };
 
 const darkModeToggle = document.getElementById('darkModeToggle');
+const autoEnableToggle = document.getElementById('autoEnableToggle'); // <-- New element
 const brightnessSlider = document.getElementById('brightnessSlider');
 const contrastSlider = document.getElementById('contrastSlider');
 const grayscaleSlider = document.getElementById('grayscaleSlider');
 const blueLightSlider = document.getElementById('blueLightSlider');
+const resetButton = document.getElementById('resetButton');
 
 const brightnessValue = document.getElementById('brightnessValue');
 const contrastValue = document.getElementById('contrastValue');
@@ -20,12 +23,34 @@ const blueLightValue = document.getElementById('blueLightValue');
 function getSettings() {
   return {
     darkMode: darkModeToggle.checked,
+    autoEnable: autoEnableToggle.checked, // <-- Read new toggle
     brightness: parseInt(brightnessSlider.value, 10),
     contrast: parseInt(contrastSlider.value, 10),
     grayscale: parseInt(grayscaleSlider.value, 10),
     blueLight: parseInt(blueLightSlider.value, 10),
   };
 }
+
+function applySettingsToUI(settings) {
+  darkModeToggle.checked = settings.darkMode;
+  autoEnableToggle.checked = settings.autoEnable; // <-- Update new toggle
+  brightnessSlider.value = settings.brightness;
+  contrastSlider.value = settings.contrast;
+  grayscaleSlider.value = settings.grayscale;
+  blueLightSlider.value = settings.blueLight;
+
+  brightnessValue.textContent = settings.brightness + '%';
+  contrastValue.textContent = settings.contrast + '%';
+  grayscaleValue.textContent = settings.grayscale + '%';
+  blueLightValue.textContent = settings.blueLight + '%';
+}
+
+// ... keep all your existing sendToActiveTab and onSettingsChange code down here ...
+
+// Just add the event listener for the new toggle at the very bottom:
+autoEnableToggle.addEventListener('change', onSettingsChange);
+
+
 
 function applySettingsToUI(settings) {
   darkModeToggle.checked = settings.darkMode;
@@ -82,5 +107,13 @@ grayscaleSlider.addEventListener('input', function () {
 
 blueLightSlider.addEventListener('input', function () {
   blueLightValue.textContent = blueLightSlider.value + '%';
+  onSettingsChange();
+});
+
+// Add this click listener for the reset button
+resetButton.addEventListener('click', function () {
+  // 1. Move all the UI sliders and toggles back to default values
+  applySettingsToUI(DEFAULTS);
+  // 2. Save the defaults to storage and instantly update the active PDF
   onSettingsChange();
 });
