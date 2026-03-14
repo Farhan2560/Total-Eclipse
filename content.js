@@ -36,24 +36,33 @@
   function applySettings(settings) {
     const s = Object.assign({}, DEFAULTS, settings);
 
-    // 1. Build native CSS filters
     let filters = [];
 
+    // --- NEW: Handle Image/Video double-inversion for regular websites ---
+    let styleTag = document.getElementById('dark-mode-media-fix');
+    
     if (s.darkMode) {
-      // Invert colors natively, and hue-rotate to fix image/logo colors
       filters.push('invert(100%)');
       filters.push('hue-rotate(180deg)');
+      
+      // Inject CSS to flip images and videos back to normal
+      if (!styleTag) {
+        styleTag = document.createElement('style');
+        styleTag.id = 'dark-mode-media-fix';
+        styleTag.textContent = 'img, video, canvas { filter: invert(100%) hue-rotate(180deg) !important; }';
+        document.head.appendChild(styleTag);
+      }
+    } else {
+      // Remove the fix if dark mode is turned off
+      if (styleTag) styleTag.remove();
     }
+    // ---------------------------------------------------------------------
 
-    // Stack the sliders natively
     filters.push('brightness(' + s.brightness + '%)');
     filters.push('contrast(' + s.contrast + '%)');
     filters.push('grayscale(' + s.grayscale + '%)');
 
-    // 2. Apply directly to the root HTML document! 
     document.documentElement.style.filter = filters.join(' ');
-
-    // 3. Handle the Blue Light tint opacity
     blueLightOverlay.style.opacity = (s.blueLight / 100).toString();
   }
 
