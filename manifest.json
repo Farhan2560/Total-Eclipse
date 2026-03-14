@@ -13,7 +13,6 @@
   "permissions": [
     "storage",
     "activeTab",
-    "scripting",
     "notifications"
   ],
 

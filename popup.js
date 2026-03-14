@@ -18,6 +18,9 @@ const brightnessValue = document.getElementById('brightnessValue');
 const contrastValue = document.getElementById('contrastValue');
 const grayscaleValue = document.getElementById('grayscaleValue');
 const blueLightValue = document.getElementById('blueLightValue');
+const fileWarning = document.getElementById('fileWarning');
+const openSettingsBtn = document.getElementById('openSettingsBtn');
+const controls = document.querySelector('.controls');
 
 function getSettings() {
   return {
@@ -60,9 +63,44 @@ function onSettingsChange() {
   sendToActiveTab(settings);
 }
 
+function updateFileAccessWarning() {
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    const activeTab = tabs && tabs[0];
+    const isLocalFile = !!(activeTab && typeof activeTab.url === 'string' && activeTab.url.startsWith('file:///'));
+
+    if (!isLocalFile) {
+      if (fileWarning) {
+        fileWarning.style.display = 'none';
+      }
+      if (controls) {
+        controls.style.opacity = '';
+        controls.style.pointerEvents = '';
+      }
+      return;
+    }
+
+    chrome.extension.isAllowedFileSchemeAccess(function (isAllowed) {
+      if (!fileWarning || !controls) {
+        return;
+      }
+
+      if (isAllowed) {
+        fileWarning.style.display = 'none';
+        controls.style.opacity = '';
+        controls.style.pointerEvents = '';
+      } else {
+        fileWarning.style.display = 'block';
+        controls.style.opacity = '0.3';
+        controls.style.pointerEvents = 'none';
+      }
+    });
+  });
+}
+
 // Load saved settings on popup open
 chrome.storage.local.get(DEFAULTS, function (saved) {
   applySettingsToUI(saved);
+  updateFileAccessWarning();
 });
 
 // Attach event listeners
@@ -103,25 +141,11 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
     // Update the toggle UI to match the new background state
     darkModeToggle.checked = changes.darkMode.newValue;
   }
-
-  // --- Check for Local File Access ---
-chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-  const activeTab = tabs[0];
-  
-  if (activeTab.url.startsWith('file:///')) {
-    chrome.extension.isAllowedFileSchemeAccess((isAllowed) => {
-      if (!isAllowed) {
-        // Show the warning and hide the normal controls
-        document.getElementById('fileWarning').style.display = 'block';
-        document.querySelector('.controls').style.opacity = '0.3';
-        document.querySelector('.controls').style.pointerEvents = 'none';
-      }
-    });
-  }
 });
 
 // Help the user find the settings page
-document.getElementById('openSettingsBtn').addEventListener('click', () => {
-  chrome.tabs.create({ url: `chrome://extensions/?id=${chrome.runtime.id}` });
-});
-});
+if (openSettingsBtn) {
+  openSettingsBtn.addEventListener('click', function () {
+    chrome.tabs.create({ url: 'chrome://extensions/?id=' + chrome.runtime.id });
+  });
+}

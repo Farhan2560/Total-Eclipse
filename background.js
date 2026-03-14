@@ -22,12 +22,16 @@ chrome.commands.onCommand.addListener((command) => {
             return; // Stop here, don't try to toggle
           } else {
             // IF ALLOWED: Proceed to toggle
-            executeToggle(activeTab.id);
+            if (activeTab.id != null) {
+              executeToggle(activeTab.id);
+            }
           }
         });
       } else {
         // If it's a normal website, proceed to toggle
-        executeToggle(activeTab.id);
+        if (activeTab.id != null) {
+          executeToggle(activeTab.id);
+        }
       }
     });
   }
@@ -37,7 +41,6 @@ chrome.commands.onCommand.addListener((command) => {
 function executeToggle(tabId) {
   chrome.storage.local.get({
     darkMode: false,
-    autoEnable: false,
     brightness: 100,
     contrast: 100,
     grayscale: 0,
