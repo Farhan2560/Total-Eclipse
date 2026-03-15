@@ -21,6 +21,22 @@ const fileWarning = document.getElementById('fileWarning');
 const openSettingsBtn = document.getElementById('openSettingsBtn');
 const controls = document.querySelector('.controls');
 
+function updateSliderVisual(sliderEl) {
+  const min = Number(sliderEl.min);
+  const max = Number(sliderEl.max);
+  const value = Number(sliderEl.value);
+  const range = max - min;
+  const pct = range > 0 ? ((value - min) / range) * 100 : 0;
+  sliderEl.style.setProperty('--pct', pct + '%');
+}
+
+function updateAllSliderVisuals() {
+  updateSliderVisual(brightnessSlider);
+  updateSliderVisual(contrastSlider);
+  updateSliderVisual(grayscaleSlider);
+  updateSliderVisual(blueLightSlider);
+}
+
 function getSettings() {
   return {
     darkMode: darkModeToggle.checked,
@@ -38,10 +54,13 @@ function applySettingsToUI(settings) {
   grayscaleSlider.value = settings.grayscale;
   blueLightSlider.value = settings.blueLight;
 
-  brightnessValue.textContent = settings.brightness + '%';
-  contrastValue.textContent = settings.contrast + '%';
-  grayscaleValue.textContent = settings.grayscale + '%';
-  blueLightValue.textContent = settings.blueLight + '%';
+  // This part updates the actual text next to the sliders!
+  document.getElementById('brightnessValue').textContent = settings.brightness + '%';
+  document.getElementById('contrastValue').textContent = settings.contrast + '%';
+  document.getElementById('grayscaleValue').textContent = settings.grayscale + '%';
+  document.getElementById('blueLightValue').textContent = settings.blueLight + '%';
+
+  updateAllSliderVisuals();
 }
 
 function sendToActiveTab(settings) {
@@ -55,11 +74,38 @@ function sendToActiveTab(settings) {
   });
 }
 
-function onSettingsChange() {
-  const settings = getSettings();
-  chrome.storage.local.set(settings);
-  sendToActiveTab(settings);
+// 1. Unified function to pull the correct data
+async function loadSettingsForCurrentSite() {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  
+  if (!tab || !tab.url) return;
+  const domain = new URL(tab.url).hostname;
+
+  chrome.storage.local.get(null, (allData) => {
+    // Check if this specific domain exists in our storage
+    const siteSettings = allData[domain] || DEFAULTS;
+    
+    // FORCE the UI to match the storage
+    applySettingsToUI(siteSettings);
+    console.log(`Loaded settings for ${domain}:`, siteSettings);
+  });
 }
+
+// 2. Update the save function to use the same logic
+async function onSettingsChange() {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tab || !tab.url) return;
+  const domain = new URL(tab.url).hostname;
+  const settings = getSettings();
+
+  chrome.storage.local.get(null, (allData) => {
+    allData[domain] = settings;
+    chrome.storage.local.set(allData);
+    sendToActiveTab(settings);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', loadSettingsForCurrentSite);
 
 function updateFileAccessWarning() {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -105,21 +151,25 @@ chrome.storage.local.get(DEFAULTS, function (saved) {
 darkModeToggle.addEventListener('change', onSettingsChange);
 
 brightnessSlider.addEventListener('input', function () {
+  updateSliderVisual(brightnessSlider);
   brightnessValue.textContent = brightnessSlider.value + '%';
   onSettingsChange();
 });
 
 contrastSlider.addEventListener('input', function () {
+  updateSliderVisual(contrastSlider);
   contrastValue.textContent = contrastSlider.value + '%';
   onSettingsChange();
 });
 
 grayscaleSlider.addEventListener('input', function () {
+  updateSliderVisual(grayscaleSlider);
   grayscaleValue.textContent = grayscaleSlider.value + '%';
   onSettingsChange();
 });
 
 blueLightSlider.addEventListener('input', function () {
+  updateSliderVisual(blueLightSlider);
   blueLightValue.textContent = blueLightSlider.value + '%';
   onSettingsChange();
 });

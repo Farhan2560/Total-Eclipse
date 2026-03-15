@@ -77,4 +77,14 @@
       applySettings(message.settings);
     }
   });
+
+
+  // Get settings for THIS specific domain
+  const domain = window.location.hostname;
+
+  chrome.storage.local.get(null, function (allData) {
+    const saved = allData[domain] || DEFAULTS;
+    applySettings(saved);
+  }); 
+  
 })();
