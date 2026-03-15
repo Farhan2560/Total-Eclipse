@@ -1,21 +1,24 @@
 # Total Eclipse
 
-A Chrome Extension (Manifest V3) that applies true dark mode and visual filters to the entire internet—including local PDF files—using Chrome's native document rendering.
+A premium Chrome Extension (Manifest V3) that applies true dark mode, advanced visual filters, and eye-care protections to the entire internet—including local PDF files—featuring a sophisticated dynamic control panel.
 
 ## What's New in Version 1.1
 * **Universal Web Support:** Expanded from a PDF-only tool to work seamlessly across all websites (`<all_urls>`).
-* **Smart Media Protection:** Custom CSS injection protects images, videos, and canvas elements from being double-inverted while dark mode is active.
+* **Smart Media Protection:** Custom CSS injection protects images, videos, and canvas elements from being inverted while dark mode is active.
+* **Premium Glassmorphic UI:** A complete redesign featuring a gold-accented, mechanical keyboard-style tactile interface with animated sweeping typography and dynamic translucent hover glows.
+* **Granular Controls:** Added `+` and `-` micro-adjustment buttons to all sliders for precise tuning.
+* **Per-Site Local Storage:** Extension filters automatically remember your exact custom configurations on a domain-by-domain basis.
 
 ## Core Features
 
-- **Dark Mode Toggle** – Inverts website colors using native CSS `invert` and `hue-rotate` for a true dark-mode experience that preserves image colors.
-- **Brightness Slider** – Adjusts brightness between 50% and 150% (default 100%).
-- **Contrast Slider** – Adjusts contrast between 50% and 150% (default 100%).
-- **Grayscale Slider** – Converts the page to grayscale, 0%–100% (default 0%).
-- **Blue Light Filter** – Applies a warm orange tint with adjustable opacity 0%–50% (default 0%) to reduce eye strain.
-- **Persistent Settings** – All slider values are saved locally and restored automatically across all your tabs.
-- **Live Updates** – Slider changes take effect instantly without reloading the page.
-- **Local PDF Support** – Still works perfectly on PDFs opened from your hard drive via `file:///` URLs.
+- **Dark Mode Mechanical Toggle** – Inverts website colors using native CSS `invert` and `hue-rotate` for a true dark-mode experience that uniquely preserves image and media colors.
+- **Brightness Slider** – Adjusts visual brightness across the page (50% to 150%).
+- **Contrast Slider** – Adjusts web contrast for maximum legibility (50% to 150%).
+- **Grayscale Slider** – Progressively converts the page to black and white (0% to 100%).
+- **Blue Light Filter** – Applies a warm, eye-safe amber tint with adjustable opacity (0% to 50%) specifically calibrated for late-night reading.
+- **Site-Specific Persistence** – Settings are mapped locally to specific domains (e.g. your settings on YouTube remain distinct from your settings on Wikipedia).
+- **Real-Time Rendering** – Filter adjustments apply instantly to the active tab via live dynamic messaging—no page reload required.
+- **Local PDF Engine** – Still works perfectly on PDFs opened straight from your hard drive (`file:///` URLs).
 
 ## Installation (Developer Mode)
 
@@ -44,9 +47,9 @@ To use the extension on offline PDFs:
 |------|---------|
 | `manifest.json` | Extension manifest (Manifest V3) defining global `<all_urls>` permissions and shortcuts |
 | `background.js` | Service worker managing the keyboard shortcuts |
-| `popup.html` | Extension popup UI (sliders, toggles, reset button) |
-| `popup.css` | Dark-themed styling for the control panel |
-| `popup.js` | Logic for loading/saving settings and sending live updates |
+| `popup.html` | Redesigned extension popup UI featuring mechanical buttons, plus/minus steppers, and new typography |
+| `popup.css` | Advanced 'Glassmorphism' dark-themed styling, dynamic gold layout, shadow mechanics, and text animations |
+| `popup.js` | Logic for loading/saving per-domain settings, handling tactile UI interactions, and routing live updates |
 | `content.js` | Injects native CSS filters, the blue light overlay, and media protection into the page |
 | `icons/icon-16.png` | 16x16 extension icon |
 | `icons/icon-48.png` | 48x48 extension icon |
