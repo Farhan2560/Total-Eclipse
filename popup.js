@@ -160,27 +160,6 @@ chrome.storage.local.get(DEFAULTS, function (saved) {
   updateFileAccessWarning();
 });
 
-// Step buttons functionality
-document.querySelectorAll('.icon-btn').forEach(btn => {
-  btn.addEventListener('click', function() {
-    const targetId = this.getAttribute('data-target');
-    const slider = document.getElementById(targetId);
-    if (!slider) return;
-    
-    const step = this.classList.contains('plus-btn') ? 5 : -5;
-    const min = parseInt(slider.min, 10);
-    const max = parseInt(slider.max, 10);
-    let val = parseInt(slider.value, 10);
-    
-    val += step;
-    if (val > max) val = max;
-    if (val < min) val = min;
-    
-    slider.value = val;
-    slider.dispatchEvent(new Event('input'));
-  });
-});
-
 // Attach event listeners
 darkModeToggle.addEventListener('change', function() {
   updateToggleVisual();
