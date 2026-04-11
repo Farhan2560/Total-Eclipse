@@ -11,51 +11,66 @@ chrome.commands.onCommand.addListener((command) => {
       if (activeTab.url.startsWith('file://')) {
         chrome.extension.isAllowedFileSchemeAccess((isAllowed) => {
           if (!isAllowed) {
-            // 3. IF BLOCKED: Fire a native system notification!
-            chrome.notifications.create({
-              type: 'basic',
-              iconUrl: 'icons/icon-128.png', // Uses your shiny new icon
-              title: 'File Access Required',
-              message: 'To use Dark Mode on local files, right-click the extension icon, click "Manage Extension", and enable "Allow access to file URLs".',
-              priority: 2
-            });
-            return; // Stop here, don't try to toggle
-          } else {
-            // IF ALLOWED: Proceed to toggle
-            if (activeTab.id != null) {
-              executeToggle(activeTab.id);
-            }
+            return; // File access is blocked; skip toggling
+          }
+
+          if (activeTab.id != null) {
+            executeToggle(activeTab);
           }
         });
       } else {
         // If it's a normal website, proceed to toggle
-        if (activeTab.id != null) {
-          executeToggle(activeTab.id);
-        }
+          if (activeTab.id != null) {
+            executeToggle(activeTab);
+          }
       }
     });
   }
 });
 
 // Helper function to handle the actual toggling logic
-function executeToggle(tabId) {
-  chrome.storage.local.get({
-    darkMode: false,
-    brightness: 100,
-    contrast: 100,
-    grayscale: 0,
-    blueLight: 0,
-  }, (settings) => {
-    
-    settings.darkMode = !settings.darkMode;
+  function executeToggle(activeTab) {
+    const tabId = activeTab.id;
+    let domain = null;
 
-    chrome.storage.local.set(settings, () => {
-      chrome.tabs.sendMessage(tabId, { 
-        type: 'UPDATE_FILTERS', 
-        settings: settings 
-      }).catch(() => {
-        // Silently catch errors if the tab cannot receive messages
+    try {
+      domain = new URL(activeTab.url).hostname || null;
+    } catch (error) {
+      domain = null;
+    }
+
+    chrome.storage.local.get(null, (allData) => {
+      const applyToAllSites = typeof allData.applyToAllSites === 'boolean' ? allData.applyToAllSites : false;
+      const globalSettings = {
+        darkMode: typeof allData.darkMode === 'boolean' ? allData.darkMode : false,
+        brightness: typeof allData.brightness === 'number' ? allData.brightness : 100,
+        contrast: typeof allData.contrast === 'number' ? allData.contrast : 100,
+        grayscale: typeof allData.grayscale === 'number' ? allData.grayscale : 0,
+        blueLight: typeof allData.blueLight === 'number' ? allData.blueLight : 0,
+      };
+
+      let updatedSettings = null;
+      let storageUpdate = null;
+
+      if (applyToAllSites) {
+        updatedSettings = { ...globalSettings, darkMode: !globalSettings.darkMode };
+        storageUpdate = { applyToAllSites: true, ...updatedSettings };
+      } else {
+        const siteSettings = domain !== null ? allData[domain] : null;
+        const mergedSettings = siteSettings ? { ...globalSettings, ...siteSettings } : { ...globalSettings };
+        updatedSettings = { ...mergedSettings, darkMode: !mergedSettings.darkMode };
+        storageUpdate = domain !== null
+          ? { [domain]: updatedSettings }
+          : { ...updatedSettings };
+      }
+
+      chrome.storage.local.set(storageUpdate, () => {
+        chrome.tabs.sendMessage(tabId, {
+          type: 'UPDATE_FILTERS',
+          settings: updatedSettings
+        }).catch(() => {
+          // Silently catch errors if the tab cannot receive messages
+        });
       });
     });
-  });
 }

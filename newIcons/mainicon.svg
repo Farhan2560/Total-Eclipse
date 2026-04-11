@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none">
+  <!-- Glow filters -->
+  <defs>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#8cc8ff" />
+      <stop offset="100%" stop-color="#e8f4ff" />
+    </linearGradient>
+    <filter id="glow" x="-70%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="12" result="blur1"/>
+      <feGaussianBlur stdDeviation="6" result="blur2"/>
+      <feMerge>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="textglow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Outer glowing cyan ring (annular eclipse) -->
+  <circle 
+    cx="256" cy="256" r="205" 
+    stroke="url(#accentGrad)" stroke-width="28" 
+    filter="url(#glow)" />
+
+  <!-- Solid black moon circle -->
+  <circle 
+    cx="256" cy="256" r="175" 
+    fill="#0a0a0a" />
+
+  <!-- Subtle inner cyan glow ring -->
+  <circle 
+    cx="256" cy="256" r="138" 
+    fill="none" stroke="#e8f4ff" stroke-width="6" opacity="0.25" />
+
+  <!-- Very subtle inner edge highlight -->
+  <circle 
+    cx="256" cy="256" r="177" 
+    fill="none" stroke="#ffffff" stroke-width="3" opacity="0.12" />
+
+  <!-- Subtle title at exact center -->
+  <text
+    x="260" y="256"
+    text-anchor="middle"
+    dominant-baseline="middle"
+    fill="#e8f4ff"
+    opacity="0.3"
+    font-family="Segoe UI, Arial, sans-serif"
+    font-size="26"
+    font-weight="500"
+    letter-spacing="0.22em">
+    TOTAL ECLIPSE
+  </text>
+
+</svg>

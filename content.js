@@ -66,10 +66,25 @@
     blueLightOverlay.style.opacity = (s.blueLight / 100).toString();
   }
 
-  // Load saved settings and apply immediately
-  chrome.storage.local.get(DEFAULTS, function (saved) {
-    applySettings(saved);
-  });
+  function loadSettings() {
+    chrome.storage.local.get(null, function (allData) {
+      const applyToAllSites = typeof allData.applyToAllSites === 'boolean' ? allData.applyToAllSites : false;
+      const globalSettings = {
+        darkMode: typeof allData.darkMode === 'boolean' ? allData.darkMode : DEFAULTS.darkMode,
+        brightness: typeof allData.brightness === 'number' ? allData.brightness : DEFAULTS.brightness,
+        contrast: typeof allData.contrast === 'number' ? allData.contrast : DEFAULTS.contrast,
+        grayscale: typeof allData.grayscale === 'number' ? allData.grayscale : DEFAULTS.grayscale,
+        blueLight: typeof allData.blueLight === 'number' ? allData.blueLight : DEFAULTS.blueLight,
+      };
+
+      const domain = window.location.hostname;
+      const siteSettings = allData[domain];
+      const mergedSettings = siteSettings ? { ...globalSettings, ...siteSettings } : { ...globalSettings };
+      const settingsToUse = applyToAllSites ? globalSettings : mergedSettings;
+
+      applySettings(settingsToUse);
+    });
+  }
 
   // Listen for live updates from the popup
   chrome.runtime.onMessage.addListener(function (message) {
@@ -78,13 +93,6 @@
     }
   });
 
-
-  // Get settings for THIS specific domain
-  const domain = window.location.hostname;
-
-  chrome.storage.local.get(null, function (allData) {
-    const saved = allData[domain] || DEFAULTS;
-    applySettings(saved);
-  }); 
+  loadSettings();
   
 })();

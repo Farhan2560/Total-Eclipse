@@ -6,6 +6,7 @@ const DEFAULTS = {
   blueLight: 0,
 };
 
+const applyAllToggle = document.getElementById('applyAllToggle');
 const darkModeToggle = document.getElementById('darkModeToggle');
 const brightnessSlider = document.getElementById('brightnessSlider');
 const contrastSlider = document.getElementById('contrastSlider');
@@ -20,6 +21,21 @@ const blueLightValue = document.getElementById('blueLightValue');
 const fileWarning = document.getElementById('fileWarning');
 const openSettingsBtn = document.getElementById('openSettingsBtn');
 const controls = document.querySelector('.controls');
+let currentDomain = null;
+
+function getApplyToAllSites(allData) {
+  return typeof allData.applyToAllSites === 'boolean' ? allData.applyToAllSites : false;
+}
+
+function getGlobalSettings(allData) {
+  return {
+    darkMode: typeof allData.darkMode === 'boolean' ? allData.darkMode : DEFAULTS.darkMode,
+    brightness: typeof allData.brightness === 'number' ? allData.brightness : DEFAULTS.brightness,
+    contrast: typeof allData.contrast === 'number' ? allData.contrast : DEFAULTS.contrast,
+    grayscale: typeof allData.grayscale === 'number' ? allData.grayscale : DEFAULTS.grayscale,
+    blueLight: typeof allData.blueLight === 'number' ? allData.blueLight : DEFAULTS.blueLight,
+  };
+}
 
 function updateSliderVisual(sliderEl) {
   const min = Number(sliderEl.min);
@@ -92,15 +108,30 @@ async function loadSettingsForCurrentSite() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   
   if (!tab || !tab.url) return;
-  const domain = new URL(tab.url).hostname;
+
+  let domain = '';
+  try {
+    domain = new URL(tab.url).hostname;
+  } catch (error) {
+    currentDomain = null;
+    return;
+  }
+
+  currentDomain = domain;
 
   chrome.storage.local.get(null, (allData) => {
-    // Check if this specific domain exists in our storage
-    const siteSettings = allData[domain] || DEFAULTS;
-    
-    // FORCE the UI to match the storage
-    applySettingsToUI(siteSettings);
-    console.log(`Loaded settings for ${domain}:`, siteSettings);
+    const applyToAllSites = getApplyToAllSites(allData);
+    const globalSettings = getGlobalSettings(allData);
+    const siteSettings = allData[domain];
+    const mergedSettings = siteSettings ? { ...globalSettings, ...siteSettings } : { ...globalSettings };
+    const settingsToUse = applyToAllSites ? globalSettings : mergedSettings;
+
+    if (applyAllToggle) {
+      applyAllToggle.checked = applyToAllSites;
+    }
+
+    applySettingsToUI(settingsToUse);
+    console.log(`Loaded settings for ${domain}:`, settingsToUse);
   });
 }
 
@@ -112,13 +143,23 @@ async function onSettingsChange() {
   const settings = getSettings();
 
   chrome.storage.local.get(null, (allData) => {
-    allData[domain] = settings;
-    chrome.storage.local.set(allData);
+    const applyToAllSites = getApplyToAllSites(allData);
+
+    if (applyToAllSites) {
+      chrome.storage.local.set({ applyToAllSites: true, ...settings });
+    } else {
+      allData[domain] = settings;
+      chrome.storage.local.set(allData);
+    }
+
     sendToActiveTab(settings);
   });
 }
 
-document.addEventListener('DOMContentLoaded', loadSettingsForCurrentSite);
+document.addEventListener('DOMContentLoaded', function () {
+  loadSettingsForCurrentSite();
+  updateFileAccessWarning();
+});
 
 function updateFileAccessWarning() {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -154,17 +195,26 @@ function updateFileAccessWarning() {
   });
 }
 
-// Load saved settings on popup open
-chrome.storage.local.get(DEFAULTS, function (saved) {
-  applySettingsToUI(saved);
-  updateFileAccessWarning();
-});
-
 // Attach event listeners
 darkModeToggle.addEventListener('change', function() {
   updateToggleVisual();
   onSettingsChange();
 });
+
+if (applyAllToggle) {
+  applyAllToggle.addEventListener('change', function () {
+    const useAllSites = applyAllToggle.checked;
+    const settings = getSettings();
+    const update = { applyToAllSites: useAllSites };
+
+    if (!useAllSites && currentDomain) {
+      update[currentDomain] = settings;
+    }
+
+    chrome.storage.local.set(useAllSites ? { ...update, ...settings } : update);
+    sendToActiveTab(settings);
+  });
+}
 
 brightnessSlider.addEventListener('input', function () {
   updateSliderVisual(brightnessSlider);
@@ -201,10 +251,15 @@ resetButton.addEventListener('click', function () {
 
 // Listen for changes made in the background (like keyboard shortcuts)
 chrome.storage.onChanged.addListener(function (changes, namespace) {
-  if (namespace === 'local' && changes.darkMode) {
-    // Update the toggle UI to match the new background state
-    darkModeToggle.checked = changes.darkMode.newValue;
-    updateToggleVisual();
+  if (namespace !== 'local') {
+    return;
+  }
+
+  const keys = ['applyToAllSites', 'darkMode', 'brightness', 'contrast', 'grayscale', 'blueLight'];
+  const hasRelevantChange = keys.some((key) => Object.prototype.hasOwnProperty.call(changes, key));
+
+  if (hasRelevantChange || (currentDomain && changes[currentDomain])) {
+    loadSettingsForCurrentSite();
   }
 });
 
