@@ -21,9 +21,9 @@ A Chrome Extension (Manifest V3) that applies true dark mode, advanced visual fi
 - **File Access Warning** – When local file access is blocked, the popup can guide you to enable it.
 
 ## Installation 
-# Add from Chrome Web Store
+### Add from Chrome Web Store
 
-# Or (Developer Mode)
+### Or with (Developer Mode)
 1. Download or clone this repository/folder.
 2. Open **Chrome** and navigate to `chrome://extensions`.
 3. Enable **Developer mode** (toggle in the top-right corner).
