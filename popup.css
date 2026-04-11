@@ -9,7 +9,7 @@
   --glass-bg: rgba(18, 18, 22, 0.7);
   --glass-hover: rgba(28, 28, 34, 0.85);
   --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-shadow: 0 8px 28px rgba(0, 0, 0, 0.6), 0 0 18px rgba(10, 132, 255, 0.18);
+  --glass-shadow: 0 8px 28px rgba(0, 0, 0, 0.6);
 
   --accent-1: #8cc8ff; /* Softer Apple blue */
   --accent-2: #e8f4ff; /* Near-white blue */
@@ -29,7 +29,7 @@
     --glass-bg: rgba(16, 16, 20, 0.8);
     --glass-hover: rgba(24, 24, 32, 0.92);
     --glass-border: rgba(255, 255, 255, 0.1);
-    --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), 0 0 22px rgba(10, 132, 255, 0.22);
+    --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.65);
 
     --accent-1: #8cc8ff;
     --accent-2: #e8f4ff;
@@ -95,14 +95,14 @@ body {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  text-shadow: 0 0 6px rgba(232, 244, 255, 0.25);
+  text-shadow: none;
   animation: hero-wave 7s linear infinite;
   transition: filter 0.2s ease, text-shadow 0.2s ease;
 }
 
 .popup-header h1:hover {
-  filter: drop-shadow(0 0 8px rgba(232, 244, 255, 0.35)) drop-shadow(0 0 14px rgba(140, 200, 255, 0.25));
-  text-shadow: 0 0 10px rgba(232, 244, 255, 0.35);
+  filter: none;
+  text-shadow: none;
 }
 
 @keyframes hero-wave {
@@ -142,13 +142,13 @@ body {
   border-radius: 14px;
   padding: 12px 14px;
   transition: transform 0.2s cubic-bezier(0.25, 0.1, 0.25, 1), background 0.2s ease;
-  box-shadow: var(--glass-shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
 .control-row:hover {
   background: var(--glass-hover);
   transform: scale(1.02);
-  box-shadow: var(--glass-shadow), 0 0 12px var(--glow-soft);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
 .control-row.toggle-row {
@@ -186,7 +186,7 @@ body {
   width: 100%;
   height: 6px;
   border-radius: 6px;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   background: linear-gradient(
     90deg,
     var(--accent-1) 0%,
@@ -199,7 +199,7 @@ body {
   transition: opacity 0.2s ease;
   opacity: 0.85;
   margin-top: 8px;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04), 0 0 8px rgba(10, 132, 255, 0.15);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
 
 .control-row:hover .slider {
@@ -215,7 +215,7 @@ body {
   background: radial-gradient(circle at 30% 30%, #ffffff, #cfd7e5);
   border: 1px solid rgba(255, 255, 255, 0.14);
   cursor: pointer;
-  box-shadow: 0 0 10px rgba(10, 132, 255, 0.35), 0 3px 8px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
   transition: transform 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
@@ -234,7 +234,7 @@ body {
   background: radial-gradient(circle at 30% 30%, #ffffff, #cfd7e5);
   border: 1px solid rgba(255, 255, 255, 0.14);
   cursor: pointer;
-  box-shadow: 0 0 10px rgba(10, 132, 255, 0.35), 0 3px 8px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
   transition: transform 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
@@ -275,7 +275,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.08);
   transition: .3s cubic-bezier(0.25, 0.1, 0.25, 1);
   border-radius: 28px;
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6), 0 0 10px rgba(10, 132, 255, 0.12);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6);
   overflow: hidden;
 }
 
@@ -304,13 +304,13 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.16);
   transition: .3s cubic-bezier(0.25, 0.1, 0.25, 1);
   border-radius: 50%;
-  box-shadow: 0 0 8px rgba(100, 210, 255, 0.35), 0 2px 6px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
 }
 
 input:checked + .toggle-slider-btn {
   background: linear-gradient(135deg, #0a0a0f, #121927);
   border-color: rgba(255, 255, 255, 0.12);
-  box-shadow: inset 0 0 12px rgba(10, 132, 255, 0.25), 0 0 12px rgba(100, 210, 255, 0.2);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6);
 }
 
 input:checked + .toggle-slider-btn::after {
@@ -325,7 +325,7 @@ input:focus + .toggle-slider-btn {
 input:checked + .toggle-slider-btn:before {
   transform: translateX(22px);
   background: radial-gradient(circle at 60% 40%, #eef6ff, #a9c0ff);
-  box-shadow: 0 0 10px rgba(100, 210, 255, 0.6), inset -3px -2px 0 rgba(0, 0, 0, 0.28);
+  box-shadow: inset -3px -2px 0 rgba(0, 0, 0, 0.28);
 }
 
 /* Reset Button */
@@ -346,13 +346,13 @@ input:checked + .toggle-slider-btn:before {
   position: relative;
   overflow: hidden;
   transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 10px rgba(10, 132, 255, 0.18);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
 }
 
 .reset-btn:hover {
   background: linear-gradient(180deg, rgba(32, 36, 44, 0.96), rgba(16, 20, 28, 0.98));
   transform: scale(1.02);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45), 0 0 14px rgba(100, 210, 255, 0.28);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 .reset-btn:active {
